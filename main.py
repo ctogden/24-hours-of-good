@@ -53,7 +53,7 @@ def play():
 def temp():
     return render_template('game.html')
 
-@app.route('/post')
+@app.route('/post', methods='POST')
 def post_test():
     return "Hello"
 
