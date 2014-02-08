@@ -1,3 +1,4 @@
+from entities import *
 from flask import *
 app = Flask(__name__)
 # Note: We don't need to call run() since our application is embedded within
@@ -12,6 +13,7 @@ app.secret_key = 'adsgjkatQ$WTasW$Twa4tJT$/$3'
 MAX_PLAYERS = 3
 
 games = []
+players = []
 all_games_full = True
 game_counter = -1
 
@@ -23,8 +25,8 @@ class Game:
         self.id = game_counter 
         self.players = []
         self.players.append(first_player)
-    def add_player(self, name):
-        self.players.append(name)
+    def add_player(self, player):
+        self.players.append(player)
     def get_player_count(self):
         return len(self.players)
     def __str__(self):
@@ -44,20 +46,36 @@ def play():
 @app.route('/connect')
 def connect():
     display_name = request.args.get('displayName')
-    session['name'] = display_name
     global game_counter
     global all_games_full
     if all_games_full:
+        p1 = Hacker(display_name)
+        users.append(p1)
         session['game'] = game_counter
-        games.append(Game(session['name']))
+        games.append(Game(p1))
+        session['player'] = p1.__id
         all_games_full = False
-        s = "New game created" + str(game_counter)
     else:
-        games[game_counter].add_player(session['name'])
+        user = OfficeDrone(display_name)
+        users.append(user)
+        games[game_counter].add_player(user)
         if games[game_counter].get_player_count() >= MAX_PLAYERS:
             all_games_full = True
-        s = "Added to existing game" + str(game_counter)
-    return jsonify(result=s)
+    return jsonify(result=True)
+
+@app.route('/has_game_started')
+def has_game_started():
+    game_id = session['game']
+    if games[game_id].get_player_count() >= MAX_PLAYERS:
+        user = users[session['player']] 
+        hacker = isinstance(user, Hacker)
+        display_names = []
+        for p in games[game_id].players:
+            display_names.append(p.__name)
+        return jsonify(isHacker=hacker, names=display_names)
+    else:
+        return jsonify()
+    
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -65,5 +83,5 @@ def page_not_found(e):
     return 'Sorry, Nothing at this URL.', 404
 
 # Only needed to run locally
-#app.debug = True;
-#app.run()
+app.debug = True;
+app.run()
