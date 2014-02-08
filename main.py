@@ -39,7 +39,8 @@ def index():
 def play():
     """Renders game page"""
     session.clear() # TODO: remove if we can reload page and take care of state
-    render_template('game.html')
+    return render_template('game.html')
+
 
 @app.route('/temp')
 def temp():
