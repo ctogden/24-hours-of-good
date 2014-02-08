@@ -6,7 +6,11 @@ app = Flask(__name__)
 # Set a secret key for encryping sessions
 app.secret_key = 'adsgjkatQ$WTasW$Twa4tJT$/$3'
 
+
+
 # Global variables track games in play
+MAX_PLAYERS = 3
+
 games = []
 all_games_full = True
 game_counter = -1
@@ -21,6 +25,8 @@ class Game:
         self.players.append(first_player)
     def add_player(name):
         self.players.append(name)
+    def get_player_count():
+        return len(self.players)
     def __str__(self):
         print "Game #" + str(self.id)
 
@@ -32,38 +38,33 @@ def index():
 @app.route('/play', methods=['GET', 'POST'])
 def play():
     """Renders game page"""
-    if session:
-        return str(session['game']) + " - " + session['name']
-    elif request.method == 'POST':
-        global game_counter
-        global all_games_full
-        if all_games_full:
-            session['game'] = game_counter + 1
-            session['name'] = request.form['name']
-            games.append(Game(session['name']))
-        else:
-            session['game'] = game_counter + 1
-            session['name'] = request.form['name']
-            games[game_counter].add_player(session['name'])
-        return str(session['game']) + " - " + session['name']
-    else:
-        return redirect('/')
+    session.clear() # TODO: remove if we can reload page and take care of state
+    render_template('game.html')
 
 @app.route('/temp')
 def temp():
+    return str(session['game']) + " - " + session['name']
     return render_template('game.html')
 
 @app.route('/connect')
 def connect():
     display_name = request.args.get('displayName')
-    # TODO get from user object
+    global game_counter
+    global all_games_full
+    if all_games_full:
+        session['game'] = game_counter + 1
+        session['name'] = request.form['name']
+        games.append(Game(session['name']))
+        all_games_full = False
+        print "New game created"
+    else:
+        session['game'] = game_counter + 1
+        session['name'] = request.form['name']
+        games[game_counter].add_player(session['name'])
+        if games[game_counter].get_player_count() > MAX_PLAYERS:
+            all_games_full = True
+        print "Added to existing game"
     return jsonify(result=True)
-
-@app.route('/_add_numbers')
-def add_numbers():
-    a = request.args.get('a', 0, type=int)
-    b = request.args.get('b', 0, type=int)
-    return jsonify(result=a + b)
 
 @app.errorhandler(404)
 def page_not_found(e):
