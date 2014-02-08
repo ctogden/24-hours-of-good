@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="./js/jquery-2.1.0.min.js"></script>
+		<script>
+			// Values for email types
+			var POWERUP = "pup";
+			var VIRUS_SCANNER = "vscanner";
+			var ACCUSATION = "accusation";
+			
+			// Emails
+			var emails;
+			var openedEmail;
+			
+			// Send your email to the server
+			function sendEmail(emailType){
+				// Fake method for now
+										
+				// Hide email div
+				$('#sendEmailDiv').hide();
+				
+				// Show loading div
+				$('#loading').show();
+				$('#waitingForOtherToEmailDiv').show();
+				// Poll server until everyone sends emails
+				pollServerForEmailsSent();
+			}
+			
+			// Continuously poll the server to see if everyone has finished
+			function pollServerForEmailsSent(){
+				// TIMEOUT TO PRETEND LIKE WAITING FOR USERS TO FINISH
+				setTimeout(function(){
+					// TODO: Write method to go to server for emails
+					if(true) {
+						$('#loading').hide();
+						$('#waitingForOtherToEmailDiv').hide();
+						var em = {};
+						var em1 = {sender:"John Doe",subject:"Power Up", text:"Change Password : Gain 10 security", id: 10102};
+						var em2 = {sender:"Jane Doe",subject:"Power Up", text:"Install Updates: Gain 20 security", id:1892064};
+						em[em1.id] = em1;
+						em[em2.id] = em2;
+						emails = em;
+						displayEmails();
+					}
+					else
+						pollServerForEmailsSent();
+				}, 10000);
+			}
+			
+			// Display a table of all the emails the player recieved
+			function displayEmails(){
+				// Get the table to display emails
+				var emailTable = $('#emailTable');
+				// Remove all rows besides first row (header)
+				emailTable.children('tr:gt(0)').remove();
+				// Add emails to table
+				$.each(emails, function(_, email) {
+					var row = $('<tr eid="' + email.id + '"><td>' + email.sender + '</td><td>' + email.subject + '</td></tr>');
+					row.click(function(){
+						openEmail($(this).attr('eid'));
+					});
+					emailTable.append(row);
+				});
+				$('#openEmailDiv').show();
+			}
+			
+			// Open an email 
+			function openEmail(emailID) {
+				// Mark email they opened
+				openedEmail = emails[emailID];
+				
+				// Show email
+				$('#openEmailDiv').hide();
+				$('#displayOpenedEmailText').text(openedEmail.text);
+				$('#displayOpenedEmailDiv').show();
+			}
+			
+			// Tell the server which email you opened and poll for everyone else to open their emails
+			function tellServerOpenedEmail(){
+				// Tell the server which email you opened
+			
+				$('#loading').show();
+				$('#waitingForOtherOpenEmailDiv').show();
+				// Wait until all users open their email
+				pollServerForEmailsOpened();
+			}
+			
+			// Wait until everyone has opened their emails
+			function pollServerForEmailsOpened(){
+				// TIMEOUT TO PRETEND LIKE WAITING FOR USERS TO FINISH
+				setTimeout(function(){
+					// TODO: Write method to go to server for emails
+					if(true) {
+						$('#loading').hide();
+						$('#waitingForOtherOpenEmailDiv').show();
+						// TODO: Tell server which email you chose
+						endTurn();
+					}
+					else
+						pollServerForEmailsOpened();
+				}, 10000);
+			}
+			
+			// Get updates for end of turn
+			function endTurn(){
+				
+			}
+			
+			// Called once document fully loads
+			$(function(){
+				$('#btn_SendPowerUp').click(function(){
+					// Send powerup
+					sendEmail();
+				});
+				$('#btn_SendVirusScanner').click(function(){
+					// Send virus scanner
+					sendEmail();
+				});
+				$('#btn_SendAccusation').click(function(){
+					// Send accusation
+					sendEmail();
+				});
+				$('#btn_submitOpenedEmail').click(function(){
+					// Hide opened email div and tell server you opened email
+					tellServerOpenedEmail();
+				});
+			});
+		</script>
+	</head>
+	<body>
+			<div class="header">
+				<h1>Hacker Phobia</h1>
+				<span>Security:</span>
+				<span>50%</span>
+			</div>
+			<div class="leftSideBar">
+				<h3>Players</h3>
+				<ul>
+					<li>John Doe</li>
+					<li>Jane Doe</li>
+				</ul>
+			</div>
+			<div class="body">
+				<div id="sendEmailDiv">
+					<h2>Send an email</h2>
+					<span id="btn_SendPowerUp">Power up picture</span>
+					<span id="btn_SendVirusScanner">Virus Scanner picture</span>
+					<span id="btn_SendAccusation">Accuse user of hacking</span>
+				</div>
+				<div id="waitingForOtherToEmailDiv" style="display:none;">
+					Waiting for others to email.
+				</div>
+				<div id="openEmailDiv" style="display:none;">
+					<table id="emailTable">
+						<tr>
+							<th>From</th>
+							<th>Subject</th>
+						</tr>
+					</table>
+				</div>
+				<div id="displayOpenedEmailDiv" style="display:none;">
+					<div id="displayOpenedEmailText"></div>
+					<div id="displayOpenedEmailButtonPanel">
+						<a id="btn_submitOpenedEmail"> Next </a>
+					</div>
+				</div>
+				<div id="waitingForOtherOpenEmailDiv" style="display:none;">
+					Waiting for others to open their emails.
+				</div>
+				<div id="loading" style="display:none;"> <img src="./images/ajax-loader.gif" alt="Loading"></img> </div>
+			</div>
+			<div class="footer">
+				<p>Hacker Phobia is a game meant to teach computer security.  It was developed at the 2014 Google 24 Hours of Good hackathon in nyc.  Enjoy!
+				Rules:
+					<ul>
+						<li>Rule 1</li>
+						<li>Rule 2</li>
+					</ul>
+				</p>
+			</div>
+	</body>
+</html>
