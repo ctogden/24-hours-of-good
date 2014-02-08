@@ -53,6 +53,10 @@ def play():
 def temp():
     return render_template('game.html')
 
+@app.route('/post')
+def post_test():
+    return "Hello"
+
 @app.errorhandler(404)
 def page_not_found(e):
     """Return a custom 404 error."""
