@@ -11,7 +11,7 @@ number_of_players = 0
 class EmailType:
     power_up = 0
     virus_scanner = 1
-
+    accusation = 2
 
 class AttackType:
     none = 0
@@ -43,16 +43,18 @@ class OfficeDrone:
         self.connection = True
         # Represents a players system health.
         self.health = 100
+        self.fired = False
         # Indicatess whether or not a OfficeDrone instance has been compromised. 
         self.compromised = False
         # Represents a list of past emails that a OfficeDrone instance opened.
         self.opened_emails = []
         # Represents the infections that a OfficeDrone instance is infected with at a given time.
         self.infections = []
+		
 
     # Creates an email op
-    def createEmail(self, email_type):
-        email = Email(self, email_type, AttackType.none)
+    def createEmail(self, email_type, accused_user, turn):
+        email = Email(email_type, AttackType.none, accused_user, self.id, turn)
         self.sent_emails.append(email)
         return email
 
@@ -83,6 +85,10 @@ class OfficeDrone:
                     self.health += attack.getDpi()
                 if attack.step() == -1:
                     self.infections.remove(i)
+		if accused(self):
+			self.fired = True
+		if health <= 0:
+			self.compromised = True
 
 
 # Represents a hacker user.
@@ -110,8 +116,8 @@ class Hacker:
         active_viruses = []
 
     # Creates an email op
-    def createEmail(self, email_type, attack_type):
-        email = Email(self, email_type, attack_type)
+    def createEmail(self, email_type, attack_type, accused_user, turn):
+        email = Email(self, email_type, attack_type, accused_user, self.id, turn)
         self.sent_emails.append(email)
         return email
 
@@ -175,7 +181,7 @@ class Email:
     number_of_emails = 0
 
     # Construct Me
-    def __init__(self, email_type, attack_type):
+    def __init__(self, email_type, attack_type, user_accused, sender_id, sent_turn):
       # Game related
         # Unique id
         self.id = Email.number_of_emails
@@ -184,6 +190,9 @@ class Email:
         self.email_type = email_type
         # Only AttackType enums apply
         self.attack_type = attack_type
+        self.user_accused = user_accused
+        self.sender_id = sender_id
+        self.sent_turn = sent_turn
 
 
     def checkForInfection(self):

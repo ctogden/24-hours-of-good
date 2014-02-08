@@ -6,11 +6,14 @@
 			$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
 		</script>
 		<script>
-			// Values for email types
+			// Constants
 			var POWERUP = "p";
 			var VIRUS_SCANNER = "vs";
 			var ACCUSATION = "a";
 			var WAIT_TIME = 3000;
+			var POWER_UP = 0
+			var VIRUS_SCANNER = 1
+			var ACCUSATION = 2
 			
 			// Emails
 			var emails;
@@ -21,18 +24,18 @@
 			var numVisibleViruses;
 			
 			// Update variables for next round
-			function updateForNextRound(){
+			function updateForNextRound(playerNames, playerIDs,  viruses){
 				users = [];
-				users.push({displayName: "John Doe", userID: 8632063});
-				users.push({displayName: "Jane Doe", userID: 3864969});
-				users.push({displayName: "Joe Shmo", userID: 4389364});
-				numVisibleViruses = 3;
+				for(var x = 0; x < playerNames.length; x++) {
+					users.push({displayName: playerNames[x], userID: playerIDs[x]});
+				}
+				numVisibleViruses = viruses;
 				$('#userToAccuseList').children().remove();
 				$.each(users, function(_, user) {
 					var row = $('<li uid="' + user.userID + '">' + user.displayName + '</li>');
 					row.click(function(){
 						$('#chooseUserToAccuse').hide();
-						sendEmail();
+						sendEmail(ACCUSATION, $(this).attr('uid'));
 					});
 					$('#userToAccuseList').append(row);
 				});
@@ -47,12 +50,12 @@
 				}, function(data) {
 					// Get if I was put into a game
 					if(data.result) { 
-						userHealth = 50;
+						userHealth = data.hp;
 						$('#loading').hide();
 						$('#waitingOtherPlayerGameStart').hide();
 						$('#securityLevel').text(userHealth + '%');
 						$('#securityDiv').show();
-						updateForNextRound()
+						updateForNextRound(data.names, data.ids, 0)
 					}
 					else {
 						setTimeout(function(){
@@ -60,11 +63,10 @@
 						}, WAIT_TIME);
 					}
 				});
-				
 			}
 			
 			// Send your email to the server
-			function sendEmail(emailType){
+			function sendEmail(emailType, accusedID){
 				// Fake method for now
 										
 				// Hide email div
@@ -72,30 +74,45 @@
 				
 				// Show loading div
 				$('#loading').show();
-				$('#waitingForOtherToEmailDiv').show();
-				// Poll server until everyone sends emails
-				pollServerForEmailsSent();
+				$.getJSON($SCRIPT_ROOT + '/send_email', {
+					email_type : emailType,
+					accused : accusedID ? accusedID : -1
+				}, function(data) {
+					// Get if I was put into a game
+					if(data.result) { 
+						$('#waitingForOtherToEmailDiv').show();
+						// Poll server until everyone sends emails
+						pollServerForEmailsSent();
+					}
+					else {
+						// Error do something (nothing)
+					}
+				});
+				
 			}
 			
 			// Continuously poll the server to see if everyone has finished
 			function pollServerForEmailsSent(){
-					
-					// TODO: Write method to go to server for emails
-					if(true) {
+			
+				$.getJSON($SCRIPT_ROOT + '/all_emails_sent', {
+				}, function(data) {
+					// Get if I was put into a game
+					if(data.result) { 
 						$('#loading').hide();
 						$('#waitingForOtherToEmailDiv').hide();
-						var em = {};
-						var em1 = {sender:"John Doe",subject:"Power Up", text:"Change Password : Gain 10 security", id: 10102, type: POWERUP};
-						var em2 = {sender:"Jane Doe",subject:"Accusation", text:"John Doe is the hacker!", id:1892064, type: ACCUSATION};
-						var em3 = {sender:"Joe Shmo",subject:"Virus Scanner", text:"Scan your computer for viruses!", id:1845986549, type: VIRUS_SCANNER};
-						em[em1.id] = em1;
-						em[em2.id] = em2;
-						em[em3.id] = em3;
-						emails = em;
+						
+						emails = {};
+						for(var x = 0; x < data.emails.length; x++) {
+							emails[emails[x].id] = {sender: emails[x].senderName, subject: emails[x].subject, text: emails[x].text, id: emails[x].id, type: emails[x].type};
+						}
 						displayEmails();
 					}
-					else
-						pollServerForEmailsSent();
+					else {
+						setTimeout(function(){
+							pollServerForEmailsSent();
+						}, WAIT_TIME);
+					}
+				});
 			}
 			
 			// Display a table of all the emails the player recieved
@@ -275,11 +292,11 @@
 				});
 				$('#btn_SendPowerUp').click(function(){
 					// Send powerup
-					sendEmail();
+					sendEmail(POWER_UP);
 				});
 				$('#btn_SendVirusScanner').click(function(){
 					// Send virus scanner
-					sendEmail();
+					sendEmail(VIRUS_SCANNER);
 				});
 				$('#btn_ShowChooseAccusation').click(function(){
 					$('#sendEmailDiv').hide();
