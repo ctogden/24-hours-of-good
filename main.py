@@ -53,9 +53,10 @@ def play():
 def temp():
     return render_template('game.html')
 
-@app.route('/post', methods='POST')
-def post_test():
-    return "Hello"
+@app.route('/connect', methods=['GET', 'POST'])
+def connect():
+    print request.form['test']
+    return "Yay"
 
 @app.errorhandler(404)
 def page_not_found(e):
