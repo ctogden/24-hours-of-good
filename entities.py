@@ -117,12 +117,12 @@ class Hacker:
 
     # Creates an email op
     def createEmail(self, email_type, attack_type, accused_user, turn):
-        email = Email(self, email_type, attack_type, accused_user, self.id, turn)
+        email = Email(email_type, attack_type, accused_user, self.id, turn)
         self.sent_emails.append(email)
         return email
 
     # Adding a bot to list of bots op
-    def addBot(office_drone_turned_bot):
+    def addBot(self, office_drone_turned_bot):
         self.bots.append(office_drone_turned_bot)     
 
 
