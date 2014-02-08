@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		 <title>HackerPhobia</title>
+		 <link rel="stylesheet" type="text/css" href="/static/css/screen.css" />
+		<link href='http://fonts.googleapis.com/css?family=Merriweather:300,700' rel='stylesheet' type='text/css'>
 		<script src="/static/js/jquery-2.1.0.min.js"></script>
 		<script type=text/javascript>
 			$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
@@ -31,6 +34,7 @@
 				}
 				numVisibleViruses = viruses;
 				$('#userToAccuseList').children().remove();
+				var id = 0;
 				$.each(users, function(_, user) {
 					var row = $('<li uid="' + user.userID + '">' + user.displayName + '</li>');
 					row.click(function(){
@@ -38,6 +42,17 @@
 						sendEmail(ACCUSATION, $(this).attr('uid'));
 					});
 					$('#userToAccuseList').append(row);
+					if(id == 0) {
+						$('#p1').text(user.displayName);
+						id++;
+					}
+					else if(id == 1) {
+						$('#p2').text(user.displayName);
+						id++;
+					}
+					else if(id == 2) {
+						$('#p3').text(user.displayName);
+					}
 				});
 				$('#sendEmailDiv').show();
 				virusScanner = false;
@@ -327,82 +342,102 @@
 		</script>
 	</head>
 	<body>
-			<div>
-				<h1>Hacker Phobia</h1>
-				<span id="playerName" style="display:none;"></span>
-				<div id="securityDiv" style="display:none;">
-					<span>Security:</span><span id="securityLevel"></span>
-				</div>
-			</div>
-			<div>
-				<div id="joinGameDiv">
-					<input id="requestedDisplayName" type="text" placeholder="Display Name" />
-					<a id="btn_JoinGame"> Join Game </a>
-				</div>
-				<div id="waitingOtherPlayerGameStart" style="display:none;">
-					Waiting for other players to start game.
-				</div>
-				<div id="sendEmailDiv" style="display:none;">
-					<h2>Send an email</h2>
-					<span id="btn_SendPowerUp">Power up picture</span>
-					<span id="btn_SendVirusScanner">Virus Scanner picture</span>
-					<span id="btn_ShowChooseAccusation">Accuse user of hacking</span>
-				</div>
-				<div id="chooseUserToAccuse" style="display:none;">
-					<h2>Who would you like to accuse?</h2>
-					<ul id="userToAccuseList"></ul>
-				</div>
-				<div id="waitingForOtherToEmailDiv" style="display:none;">
-					Waiting for others to email.
-				</div>
-				<div id="openEmailDiv" style="display:none;">
-					<table id="emailTable">
-						<tr>
-							<th>From</th>
-							<th>Subject</th>
-						</tr>
-					</table>
-				</div>
-				<div id="displayOpenedEmailDiv" style="display:none;">
-					<div id="displayOpenedEmailText"></div>
-					<div id="respondUserAccusation" style="display:none;">
-						<a id="btn_AgreeAccusation">I agree!</a>
-						<a id="btn_DeclineAccusation">I don't agree!</a>
+			<header>
+				<img src="/static/images/logo2.png" />
+				<img id ="teamName" src="/static/images/teamName.png" />
+			</header>
+			<section>
+				<div id="leftSection">
+					<img src="/static/images/officeDrone.png" />
+					<img id="securePointsBar" src="/static/images/securePoint.png" />
+					<div id="securityDiv" style="display:none;">
+						<span id="securityLevel"></span>
+						<span id="playerName" style="display:none;"></span>
 					</div>
-					<a id="btn_submitOpenedEmail"> Next </a>
+					
 				</div>
-				<div id="waitingForOtherOpenEmailDiv" style="display:none;">
-					Waiting for others to open their emails.
+				<div id="middleSection">
+					<img src="/static/images/unknown.png" />
+					<h1 id="p1">???</h1>
+					<img src="/static/images/unknown.png" />
+					<h1 id="p2">???</h1>
+					<img src="/static/images/unknown.png" />
+					<h1 id="p3">????</h1>
+					<img src="/static/images/unknown.png" />
+					<h1 id="p4">????</h1>
 				</div>
-				<div id="virusScanner" style="display:none;">
-					<span>Scanning for viruses</span>
-					<span>Viruses Found:</span>
-					<span id="virusesFound"></span>
+				<div id="rightSection" style="min-height:635px">
+					<div id="sendEmailDiv" style="display:none;">
+						<img id="btn_SendPowerUp" class="button" onmouseover="this.src='/static/images/powerUpButtonMouseOver.png'" onmouseout="this.src='/static/images/powerUpButton.png'" src="/static/images/powerUpButton.png" />
+						<img id="btn_SendVirusScanner" class="button" onmouseover="this.src='/static/images/virusScannerButtonMouseOver.png'" onmouseout="this.src='/static/images/virusScannerButton.png'" src="/static/images/virusScannerButton.png" />
+						<img id="btn_ShowChooseAccusation" class="button" onmouseover="this.src='/static/images/accusationButtonMouseOver.png'" onmouseout="this.src='/static/images/accusationButton.png'" src="/static/images/accusationButton.png" />
+					</div>
+					<div style="display:none;"><img src="/static/images/open.png" /></div>
+					<div style="min-height:525px; background:#DC3522">
+						<div id="joinGameDiv" style="padding-top: 250px;">
+							<input id="requestedDisplayName" type="text" placeholder="Display Name" />
+							<a id="btn_JoinGame"> Join Game </a>
+						</div>
+						<div id="chooseUserToAccuse" style="display:none;">
+							<h2>Who would you like to accuse?</h2>
+							<ul id="userToAccuseList"></ul>
+						</div>
+						<div id="waitingOtherPlayerGameStart" style="display:none;">
+							Waiting for other players to start game.
+						</div>
+						<div id="waitingForOtherToEmailDiv" style="display:none;">
+							Waiting for others to email.
+						</div>
+						<div id="openEmailDiv" style="display:none;">
+							<img src="/static/images/choose.png" />
+							<table id="emailTable">
+								<tr>
+									<th>From</th>
+									<th>Subject</th>
+								</tr>
+							</table>
+						</div>
+						<div id="displayOpenedEmailDiv" style="display:none;">
+							<div id="displayOpenedEmailText"></div>
+							<div id="respondUserAccusation" style="display:none;">
+								<a id="btn_AgreeAccusation">I agree!</a>
+								<a id="btn_DeclineAccusation">I don't agree!</a>
+							</div>
+							<a id="btn_submitOpenedEmail"> Next </a>
+						</div>
+						<div id="waitingForOtherOpenEmailDiv" style="display:none;">
+							Waiting for others to open their emails.
+						</div>
+						<div id="virusScanner" style="display:none;">
+							<span>Scanning for viruses</span>
+							<span>Viruses Found:</span>
+							<span id="virusesFound"></span>
+						</div>
+						<div id="computerHacked" style="display:none;">
+							<h2> GAME OVER! YOU HAVE BEEN HACKED!</h2>
+						</div>
+						<div id="yourFired" style="display:none;">
+							<h2> GAME OVER! YOU HAVE BEEN ACCUSED OF HACKING AND FIRED! </h2>
+						</div>
+						<div id="caughtHacker" style="display:none">
+							<h2> CONGRATULATIONS! THE HACKER HAS BEEN CAUGHT! </h2>
+						</div>
+						<div id="alertsDiv" style="display:none;">
+							<ul id="alertsList">
+							</ul>
+							<a id="btn_DoneViewingAlerts"> Next </a>
+						</div>
+						<div id="loading" style="display:none; background:#DC3522;"> <img src="/static/images/ajax-loader.gif" alt="Loading"></img> </div>
+					</div>
+					<div style="display:none;">
+						<img src="/static/images/smallPowerUpButton.png" onmouseover="this.src ='/static/images/smallPowerUpButtonMouseOver.png'" onmouseout="this.src='/static/images/smallPowerUpButton.png'"/>
+						<img src="/static/images/smallPowerUpButton.png" onmouseover="this.src ='/static/images/smallPowerUpButtonMouseOver.png'" onmouseout="this.src='/static/images/smallPowerUpButton.png'"/>
+						<img src="/static/images/smallVirusScannerButton.png" onmouseover="this.src='/static/images/smallVirusScannerButtonMouseOver.png'" onmouseout="    this.src='/static/images/smallVirusScannerButton.png'"/>
+						<img src="/static/images/smallVirusScannerButton.png" onmouseover="this.src='/static/images/smallVirusScannerButtonMouseOver.png'" onmouseout="    this.src='/static/images/smallVirusScannerButton.png'"/>
+						<img src="/static/images/smallAccusationButton.png" onmouseover="this.src='/static/images/smallAccusationButtonMouseOver.png'" onmouseout="this.src='/static/images/smallAccusationButton.png'"/>
+					<div>
 				</div>
-				<div id="computerHacked" style="display:none;">
-					<h2> GAME OVER! YOU HAVE BEEN HACKED!</h2>
-				</div>
-				<div id="yourFired" style="display:none;">
-					<h2> GAME OVER! YOU HAVE BEEN ACCUSED OF HACKING AND FIRED! </h2>
-				</div>
-				<div id="caughtHacker" style="display:none">
-					<h2> CONGRATULATIONS! THE HACKER HAS BEEN CAUGHT! </h2>
-				</div>
-				<div id="alertsDiv" style="display:none;">
-					<ul id="alertsList">
-					</ul>
-					<a id="btn_DoneViewingAlerts"> Next </a>
-				</div>
-				<div id="loading" style="display:none;"> <img src="/static/images/ajax-loader.gif" alt="Loading"></img> </div>
-			</div>
-			<div>
-				<p>Hacker Phobia is a game meant to teach computer security.  It was developed at the 2014 Google 24 Hours of Good hackathon in nyc.  Enjoy!
-				Rules:
-					<ul>
-						<li>Rule 1</li>
-						<li>Rule 2</li>
-					</ul>
-				</p>
-			</div>
+				
+			</section>
 	</body>
 </html>
