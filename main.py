@@ -119,6 +119,18 @@ def all_emails_sent():
 	#get list of all emails sent this turn in this game
 	#if size of list is equal to number of emails sent this turn, return true with results of emails related else false
 	#check if all emails sent by users this turn
+    
+@app.route('/test')
+def test():
+    return render_template('24hoursofgood.html')
+
+@app.route('/hacker')
+def hacker():
+    return render_template('hackers.html')
+
+@app.route('/drone')
+def drone():
+    return render_template('drones.html')
 
 @app.errorhandler(404)
 def page_not_found(e):
