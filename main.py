@@ -78,6 +78,17 @@ def has_game_started():
     else:
         return jsonify(result=False)
     
+@app.route('/test')
+def test():
+    return render_template('24hoursofgood.html')
+
+@app.route('/hacker')
+def hacker():
+    return render_template('hackers.html')
+
+@app.route('/drone')
+def drone():
+    return render_template('drones.html')
 
 @app.errorhandler(404)
 def page_not_found(e):
