@@ -50,14 +50,16 @@ def connect():
     global all_games_full
     if all_games_full:
         p1 = Hacker(display_name)
-        users.append(p1)
+        players.append(p1)
         session['game'] = game_counter
         games.append(Game(p1))
-        session['player'] = p1.__id
+        session['player'] = p1.id
         all_games_full = False
     else:
         user = OfficeDrone(display_name)
-        users.append(user)
+        session['player'] = user.id
+        session['game'] = game_counter
+        players.append(user)
         games[game_counter].add_player(user)
         if games[game_counter].get_player_count() >= MAX_PLAYERS:
             all_games_full = True
@@ -67,14 +69,14 @@ def connect():
 def has_game_started():
     game_id = session['game']
     if games[game_id].get_player_count() >= MAX_PLAYERS:
-        user = users[session['player']] 
+        user = players[session['player']] 
         hacker = isinstance(user, Hacker)
         display_names = []
         for p in games[game_id].players:
-            display_names.append(p.__name)
-        return jsonify(isHacker=hacker, names=display_names)
+            display_names.append(p.name)
+        return jsonify(result=True,isHacker=hacker, names=display_names)
     else:
-        return jsonify()
+        return jsonify(result=False)
     
 
 @app.errorhandler(404)

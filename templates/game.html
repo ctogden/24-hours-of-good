@@ -42,10 +42,11 @@
 			
 			// Poll the server until you are place into a game
 			function pollServerJoinGame(){
-				// TIMEOUT TO PRETEND LIKE WAITING FOR USERS TO JOIN
-				setTimeout(function(){
-					// TODO: Write method to go to server for emails
-					if(true) {
+			
+				$.getJSON($SCRIPT_ROOT + '/has_game_started', {
+				}, function(data) {
+					// Get if I was put into a game
+					if(data.result) { 
 						userHealth = 50;
 						$('#loading').hide();
 						$('#waitingOtherPlayerGameStart').hide();
@@ -53,9 +54,13 @@
 						$('#securityDiv').show();
 						updateForNextRound()
 					}
-					else
-						pollServerJoinGame();
-				}, 5000);
+					else {
+						setTimeout(function(){
+							pollServerJoinGame();
+						}, WAIT_TIME);
+					}
+				});
+				
 			}
 			
 			// Send your email to the server
@@ -74,29 +79,6 @@
 			
 			// Continuously poll the server to see if everyone has finished
 			function pollServerForEmailsSent(){
-			
-					$.getJSON($SCRIPT_ROOT + '/has_game_started', {
-					}, function(data) {
-						// Get if I was put into a game
-						if(data) { 
-							$('#loading').hide();
-							$('#waitingForOtherToEmailDiv').hide();
-							var em = {};
-							var em1 = {sender:"John Doe",subject:"Power Up", text:"Change Password : Gain 10 security", id: 10102, type: POWERUP};
-							var em2 = {sender:"Jane Doe",subject:"Accusation", text:"John Doe is the hacker!", id:1892064, type: ACCUSATION};
-							var em3 = {sender:"Joe Shmo",subject:"Virus Scanner", text:"Scan your computer for viruses!", id:1845986549, type: VIRUS_SCANNER};
-							em[em1.id] = em1;
-							em[em2.id] = em2;
-							em[em3.id] = em3;
-							emails = em;
-							displayEmails();
-						}
-						else {
-							setTimeout(function(){
-								pollServerJoinGame();
-							}, WAIT_TIME);
-						}
-					});
 					
 					// TODO: Write method to go to server for emails
 					if(true) {
