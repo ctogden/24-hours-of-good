@@ -52,6 +52,10 @@
 					}
 					else if(id == 2) {
 						$('#p3').text(user.displayName);
+						id++;
+					}
+					else if(id == 3) {
+						$('#p4').text(user.displayName);
 					}
 				});
 				$('#sendEmailDiv').show();
@@ -350,21 +354,21 @@
 				<div id="leftSection">
 					<img src="/static/images/officeDrone.png" />
 					<img id="securePointsBar" src="/static/images/securePoint.png" />
-					<div id="securityDiv" style="display:none;">
-						<span id="securityLevel"></span>
-						<span id="playerName" style="display:none;"></span>
+					<div id="securityDiv" style="display:none; margin-top:-75px;margin-right:-35px;">
+						<span id="securityLevel" style="font-size: 40px; color: white;"></span>
+						<div style="display:none;"><span id="playerName" style="display:none;"></span></div>
 					</div>
 					
 				</div>
 				<div id="middleSection">
 					<img src="/static/images/unknown.png" />
-					<h1 id="p1">???</h1>
+					<h1 id="p1" style="color:white;">???</h1>
 					<img src="/static/images/unknown.png" />
-					<h1 id="p2">???</h1>
+					<h1 id="p2" style="color:white;">???</h1>
 					<img src="/static/images/unknown.png" />
-					<h1 id="p3">????</h1>
+					<h1 id="p3" style="color:white;">????</h1>
 					<img src="/static/images/unknown.png" />
-					<h1 id="p4">????</h1>
+					<h1 id="p4" style="color:white;">????</h1>
 				</div>
 				<div id="rightSection" style="min-height:635px">
 					<div id="sendEmailDiv" style="display:none;">

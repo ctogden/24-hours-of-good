@@ -10,7 +10,7 @@ app.secret_key = 'adsgjkatQ$WTasW$Twa4tJT$/$3'
 
 
 # Global variables track games in play
-MAX_PLAYERS = 3
+MAX_PLAYERS = 4
 
 games = []
 players = []
@@ -113,7 +113,7 @@ def all_emails_sent():
             if e.sent_turn == current_game.this_turn:
                 emails_sent_this_turn.append(e)
     if len(emails_sent_this_turn) == len(current_game.players):
-        return jsonify(emails = emails_sent_this_turn, result = True)
+        return jsonify(result = True)
     else:
         return jsonify(result = False)
 	#get list of all emails sent this turn in this game
