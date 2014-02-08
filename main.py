@@ -23,9 +23,9 @@ class Game:
         self.id = game_counter 
         self.players = []
         self.players.append(first_player)
-    def add_player(name):
+    def add_player(self, name):
         self.players.append(name)
-    def get_player_count():
+    def get_player_count(self):
         return len(self.players)
     def __str__(self):
         print "Game #" + str(self.id)
@@ -39,32 +39,25 @@ def index():
 def play():
     """Renders game page"""
     session.clear() # TODO: remove if we can reload page and take care of state
-    render_template('game.html')
-
-@app.route('/temp')
-def temp():
-    return str(session['game']) + " - " + session['name']
     return render_template('game.html')
 
 @app.route('/connect')
 def connect():
     display_name = request.args.get('displayName')
+    session['name'] = display_name
     global game_counter
     global all_games_full
     if all_games_full:
-        session['game'] = game_counter + 1
-        session['name'] = request.form['name']
+        session['game'] = game_counter
         games.append(Game(session['name']))
         all_games_full = False
-        print "New game created"
+        s = "New game created" + str(game_counter)
     else:
-        session['game'] = game_counter + 1
-        session['name'] = request.form['name']
         games[game_counter].add_player(session['name'])
-        if games[game_counter].get_player_count() > MAX_PLAYERS:
+        if games[game_counter].get_player_count() >= MAX_PLAYERS:
             all_games_full = True
-        print "Added to existing game"
-    return jsonify(result=True)
+        s = "Added to existing game" + str(game_counter)
+    return jsonify(result=s)
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -72,5 +65,5 @@ def page_not_found(e):
     return 'Sorry, Nothing at this URL.', 404
 
 # Only needed to run locally
-app.debug = True;
-app.run()
+#app.debug = True;
+#app.run()
