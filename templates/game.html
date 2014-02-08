@@ -2,6 +2,9 @@
 <html>
 	<head>
 		<script src="/static/js/jquery-2.1.0.min.js"></script>
+		<script type=text/javascript>
+			$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+		</script>
 		<script>
 			// Values for email types
 			var POWERUP = "p";
@@ -47,8 +50,6 @@
 						$('#waitingOtherPlayerGameStart').hide();
 						$('#securityLevel').text(userHealth + '%');
 						$('#securityDiv').show();
-						$('#playerName').show();
-						$('#playerName').text($('#requestedDisplayName').val());
 						updateForNextRound()
 					}
 					else
@@ -250,8 +251,23 @@
 				$('#btn_JoinGame').click(function(){
 					$('#loading').show();
 					$('#waitingOtherPlayerGameStart').show();
-					$('#joinGameDiv').hide();
-					pollServerJoinGame();
+					$.getJSON($SCRIPT_ROOT + '/connect', {
+						displayName: $('#requestedDisplayName').val()
+					}, function(data) {
+						// Get if I was put into a game
+						if(data) { 
+							// Success fill player name
+							$('#playerName').show();
+							$('#playerName').text($('#requestedDisplayName').val());
+							$('#joinGameDiv').hide();
+							
+							// begin polling for game begin
+							pollServerJoinGame();
+						}
+						else {
+							// TODO: ERROR REPORTING
+						}
+					});
 				});
 				$('#btn_SendPowerUp').click(function(){
 					// Send powerup
