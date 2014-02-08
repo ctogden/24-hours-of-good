@@ -58,6 +58,12 @@ def connect():
     print request.form['test']
     return "Yay"
 
+@app.route('/_add_numbers')
+def add_numbers():
+    a = request.args.get('a', 0, type=int)
+    b = request.args.get('b', 0, type=int)
+    return jsonify(result=a + b)
+
 @app.errorhandler(404)
 def page_not_found(e):
     """Return a custom 404 error."""
