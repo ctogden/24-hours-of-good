@@ -121,9 +121,12 @@
 						$('#waitingForOtherToEmailDiv').hide();
 						
 						emails = {};
-						for(var x = 0; x < data.emails.length; x++) {
+						emails[0] = {sender: "Hanne", subject: "Accusation", text: "Jamie is a hacker!", id: 0, type: ACCUSATION};
+						emails[1] = {sender: "Jamie", subject: "Virus Scanner", text: "Heres a free virus scanner!", id: 1, type: VIRUS_SCANNER};
+						emails[2] = {sender: "Chris", subject: "Powerup", text: "Change your password!", id: 2, type: POWER_UP};
+						/*for(var x = 0; x < data.emails.length; x++) {
 							emails[emails[x].id] = {sender: emails[x].senderName, subject: emails[x].subject, text: emails[x].text, id: emails[x].id, type: emails[x].type};
-						}
+						}*/
 						displayEmails();
 					}
 					else {
