@@ -6,11 +6,12 @@ app = Flask(__name__)
 # Set a secret key for encryping sessions
 app.secret_key = 'adsgjkatQ$WTasW$Twa4tJT$/$3'
 
-
+# Global variables track games in play
 games = []
 all_games_full = True
 game_counter = -1
 
+# Game class holds all our game data
 class Game:
     def __init__(self, first_player):
         global game_counter
@@ -25,32 +26,32 @@ class Game:
 
 @app.route('/')
 def index():
-    """Create an index page that creates a user session"""
-    global game_counter
-    global all_games_full
+    """Create an index page that allows entrance to a game"""
+    return render_template('index.html')
+
+@app.route('/play', methods=['GET', 'POST'])
+def play():
+    """Renders game page"""
     if session:
-        print "session"
-    else:
+        return str(session['game']) + " - " + session['name']
+    elif request.method == 'POST':
+        global game_counter
+        global all_games_full
         if all_games_full:
             session['game'] = game_counter + 1
-            games.append(Game("Hanne"))
-            ##
-            i = 0
-            while i < len(games):
-                games[i].__str__()
-                i += 1
+            session['name'] = request.form['name']
+            games.append(Game(session['name']))
         else:
             session['game'] = game_counter + 1
-            games[game_counter].add_player("Chris")
-            i = 0
-            while i < len(games):
-                games[i].__str__()
-                i += 1
-    return str(session['game'])
+            session['name'] = request.form['name']
+            games[game_counter].add_player(session['name'])
+        return str(session['game']) + " - " + session['name']
+    else:
+        return redirect('/')
 
-@app.route('/play')
-def play():
-    return render_template('play.html')
+@app.route('/temp')
+def temp():
+    return render_template('game.html')
 
 @app.errorhandler(404)
 def page_not_found(e):

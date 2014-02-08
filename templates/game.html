@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="/static/js/jquery-2.1.0.min.js"></script>
+		<script>
+			// Values for email types
+			var POWERUP = "p";
+			var VIRUS_SCANNER = "vs";
+			var ACCUSATION = "a";
+			
+			// Emails
+			var emails;
+			var openedEmail;
+			var users;
+			var userHealth;
+			var virusScanner;
+			var numVisibleViruses;
+			
+			// Update variables for next round
+			function updateForNextRound(){
+				users = [];
+				users.push({displayName: "John Doe", userID: 8632063});
+				users.push({displayName: "Jane Doe", userID: 3864969});
+				users.push({displayName: "Joe Shmo", userID: 4389364});
+				numVisibleViruses = 3;
+				$('#userToAccuseList').children().remove();
+				$.each(users, function(_, user) {
+					var row = $('<li uid="' + user.userID + '">' + user.displayName + '</li>');
+					row.click(function(){
+						$('#chooseUserToAccuse').hide();
+						sendEmail();
+					});
+					$('#userToAccuseList').append(row);
+				});
+				$('#sendEmailDiv').show();
+				virusScanner = false;
+			}
+			
+			// Poll the server until you are place into a game
+			function pollServerJoinGame(){
+				// TIMEOUT TO PRETEND LIKE WAITING FOR USERS TO JOIN
+				setTimeout(function(){
+					// TODO: Write method to go to server for emails
+					if(true) {
+						userHealth = 50;
+						$('#loading').hide();
+						$('#waitingOtherPlayerGameStart').hide();
+						$('#securityLevel').text(userHealth + '%');
+						$('#securityDiv').show();
+						$('#playerName').show();
+						$('#playerName').text($('#requestedDisplayName').val());
+						updateForNextRound()
+					}
+					else
+						pollServerJoinGame();
+				}, 5000);
+			}
+			
+			// Send your email to the server
+			function sendEmail(emailType){
+				// Fake method for now
+										
+				// Hide email div
+				$('#sendEmailDiv').hide();
+				
+				// Show loading div
+				$('#loading').show();
+				$('#waitingForOtherToEmailDiv').show();
+				// Poll server until everyone sends emails
+				pollServerForEmailsSent();
+			}
+			
+			// Continuously poll the server to see if everyone has finished
+			function pollServerForEmailsSent(){
+				// TIMEOUT TO PRETEND LIKE WAITING FOR USERS TO FINISH
+				setTimeout(function(){
+					// TODO: Write method to go to server for emails
+					if(true) {
+						$('#loading').hide();
+						$('#waitingForOtherToEmailDiv').hide();
+						var em = {};
+						var em1 = {sender:"John Doe",subject:"Power Up", text:"Change Password : Gain 10 security", id: 10102, type: POWERUP};
+						var em2 = {sender:"Jane Doe",subject:"Accusation", text:"John Doe is the hacker!", id:1892064, type: ACCUSATION};
+						var em3 = {sender:"Joe Shmo",subject:"Virus Scanner", text:"Scan your computer for viruses!", id:1845986549, type: VIRUS_SCANNER};
+						em[em1.id] = em1;
+						em[em2.id] = em2;
+						em[em3.id] = em3;
+						emails = em;
+						displayEmails();
+					}
+					else
+						pollServerForEmailsSent();
+				}, 5000);
+			}
+			
+			// Display a table of all the emails the player recieved
+			function displayEmails(){
+				// Get the table to display emails
+				var emailTable = $('#emailTable');
+				// Remove all rows besides first row (header)
+				emailTable.children('tr:gt(0)').remove();
+				// Add emails to table
+				$.each(emails, function(_, email) {
+					var row = $('<tr eid="' + email.id + '"><td>' + email.sender + '</td><td>' + email.subject + '</td></tr>');
+					row.click(function(){
+						openEmail($(this).attr('eid'));
+					});
+					emailTable.append(row);
+				});
+				$('#openEmailDiv').show();
+			}
+			
+			// Open an email 
+			function openEmail(emailID) {
+				// Mark email they opened
+				openedEmail = emails[emailID];
+				
+				// Show email
+				$('#openEmailDiv').hide();
+				$('#displayOpenedEmailText').text(openedEmail.text);
+				$('#displayOpenedEmailDiv').show();
+				if(openedEmail.type == ACCUSATION) {
+					$('#respondUserAccusation').show();
+					$('#btn_submitOpenedEmail').hide();
+				}
+				else if(openedEmail.type == VIRUS_SCANNER) {
+					virusScanner = true;
+				}
+			}
+			
+			// Tell the server which email you opened and poll for everyone else to open their emails
+			function tellServerOpenedEmail(){
+				// Tell the server which email you opened
+			
+				$('#loading').show();
+				$('#displayOpenedEmailDiv').hide();
+				$('#waitingForOtherOpenEmailDiv').show();
+				// Wait until all users open their email
+				pollServerForEmailsOpened();
+			}
+			
+			// Wait until everyone has opened their emails
+			function pollServerForEmailsOpened(){
+				// TIMEOUT TO PRETEND LIKE WAITING FOR USERS TO FINISH
+				setTimeout(function(){
+					// TODO: Write method to go to server for emails
+					if(true) {
+						$('#loading').hide();
+						$('#waitingForOtherOpenEmailDiv').hide();
+						// TODO: Tell server which email you chose
+						endTurn();
+					}
+					else
+						pollServerForEmailsOpened();
+				}, 5000);
+			}
+			
+			// Get updates for end of turn
+			function endTurn(){	
+				// Should be getting this data object from server
+				var data = {healAmmount: 20, damageAmmount: 10, isFired: false, alerts : [], hackerCaught: false};
+				
+				// Show animation for scanning for viruses
+				if(virusScanner) {
+					scanForViruses(0, data);
+					$('#virusScanner').show();
+				}
+				else 
+					healUser(data);
+			}
+			
+			// Show gui scanning for viruses
+			function scanForViruses(virusesFound, data){
+				setTimeout(function(){
+					if(virusesFound < numVisibleViruses) {
+						virusesFound++;
+						$('#virusesFound').text(virusesFound);
+						scanForViruses(virusesFound, data);
+					}
+					else {
+						$('#virusScanner').hide();
+						healUser(data)
+					}
+				}, 1000);
+			}
+			
+			// Heal the user
+			function healUser(data){
+				if(data.healAmmount > 0) {
+					userHealth++;
+					data.healAmmount--;
+					$('#securityLevel').text(userHealth + '%');
+					setTimeout(function(){
+						healUser(data);
+					}, 100);
+				}
+				else {
+					// move onto damaging
+					damageUser(data);
+				}
+			}
+			
+			// Damage the user
+			function damageUser(data){
+				if(data.damageAmmount > 0 && userHealth > 0) {
+					userHealth--;
+					data.damageAmmount--;
+					$('#securityLevel').text(userHealth + '%');
+					setTimeout(function(){
+						damageUser(data);
+					}, 100);
+				}else {
+					checkUserDied(data);
+				}
+			}
+			
+			// Check if the user died
+			function checkUserDied(data) {
+				if(userHealth <= 0) {
+					// Your dead
+					$('#computerHacked').show();
+				}
+				else if(data.isFired) {
+					$('#yourFired').show();
+				}
+				else if(data.hackerCaught) {
+					$('#caughtHacker').show();
+				}
+				else if(data.alerts.length > 0) {
+					// Alert user of changes
+					displayAlerts(data.alerts);
+				}
+				else {
+					// Move onto next turn
+					updateForNextRound();
+				}
+			}
+			
+			// Display alerts
+			function displayAlerts(alerts) {
+				$('#alertsList').children().remove();
+				for(var x = 0; x < alerts.length; x++) {
+					$('#alertsList').append('<li>' + alerts[x].text + '</li>');
+				}
+				$('#alertsDiv').show();
+			}
+			
+			// Called once document fully loads
+			$(function(){
+				$('#btn_JoinGame').click(function(){
+					$('#loading').show();
+					$('#waitingOtherPlayerGameStart').show();
+					$('#joinGameDiv').hide();
+					pollServerJoinGame();
+				});
+				$('#btn_SendPowerUp').click(function(){
+					// Send powerup
+					sendEmail();
+				});
+				$('#btn_SendVirusScanner').click(function(){
+					// Send virus scanner
+					sendEmail();
+				});
+				$('#btn_ShowChooseAccusation').click(function(){
+					$('#sendEmailDiv').hide();
+					$('#chooseUserToAccuse').show();
+				});
+				$('#btn_submitOpenedEmail').click(function(){
+					// Hide opened email div and tell server you opened email
+					tellServerOpenedEmail();
+				});
+				$('#btn_AgreeAccusation').click(function(){
+					// Mark accusation accepted
+					$('#btn_submitOpenedEmail').click();
+					$('#btn_submitOpenedEmail').show();
+					$('#respondUserAccusation').hide();
+				});
+				$('#btn_DeclineAccusation').click(function(){
+					// Mark accusation declined
+					$('#btn_submitOpenedEmail').click();
+					$('#btn_submitOpenedEmail').show();
+					$('#respondUserAccusation').hide();
+				});
+				$('#btn_DoneViewingAlerts').click(function(){
+					// Done viewing alerts, next
+					$('#alertsDiv').hide();
+					updateForNextRound();
+				});
+			});
+		</script>
+	</head>
+	<body>
+			<div>
+				<h1>Hacker Phobia</h1>
+				<span id="playerName" style="display:none;"></span>
+				<div id="securityDiv" style="display:none;">
+					<span>Security:</span><span id="securityLevel"></span>
+				</div>
+			</div>
+			<div>
+				<div id="joinGameDiv">
+					<input id="requestedDisplayName" type="text" placeholder="Display Name" />
+					<a id="btn_JoinGame"> Join Game </a>
+				</div>
+				<div id="waitingOtherPlayerGameStart" style="display:none;">
+					Waiting for other players to start game.
+				</div>
+				<div id="sendEmailDiv" style="display:none;">
+					<h2>Send an email</h2>
+					<span id="btn_SendPowerUp">Power up picture</span>
+					<span id="btn_SendVirusScanner">Virus Scanner picture</span>
+					<span id="btn_ShowChooseAccusation">Accuse user of hacking</span>
+				</div>
+				<div id="chooseUserToAccuse" style="display:none;">
+					<h2>Who would you like to accuse?</h2>
+					<ul id="userToAccuseList"></ul>
+				</div>
+				<div id="waitingForOtherToEmailDiv" style="display:none;">
+					Waiting for others to email.
+				</div>
+				<div id="openEmailDiv" style="display:none;">
+					<table id="emailTable">
+						<tr>
+							<th>From</th>
+							<th>Subject</th>
+						</tr>
+					</table>
+				</div>
+				<div id="displayOpenedEmailDiv" style="display:none;">
+					<div id="displayOpenedEmailText"></div>
+					<div id="respondUserAccusation" style="display:none;">
+						<a id="btn_AgreeAccusation">I agree!</a>
+						<a id="btn_DeclineAccusation">I don't agree!</a>
+					</div>
+					<a id="btn_submitOpenedEmail"> Next </a>
+				</div>
+				<div id="waitingForOtherOpenEmailDiv" style="display:none;">
+					Waiting for others to open their emails.
+				</div>
+				<div id="virusScanner" style="display:none;">
+					<span>Scanning for viruses</span>
+					<span>Viruses Found:</span>
+					<span id="virusesFound"></span>
+				</div>
+				<div id="computerHacked" style="display:none;">
+					<h2> GAME OVER! YOU HAVE BEEN HACKED!</h2>
+				</div>
+				<div id="yourFired" style="display:none;">
+					<h2> GAME OVER! YOU HAVE BEEN ACCUSED OF HACKING AND FIRED! </h2>
+				</div>
+				<div id="caughtHacker" style="display:none">
+					<h2> CONGRATULATIONS! THE HACKER HAS BEEN CAUGHT! </h2>
+				</div>
+				<div id="alertsDiv" style="display:none;">
+					<ul id="alertsList">
+					</ul>
+					<a id="btn_DoneViewingAlerts"> Next </a>
+				</div>
+				<div id="loading" style="display:none;"> <img src="/static/images/ajax-loader.gif" alt="Loading"></img> </div>
+			</div>
+			<div>
+				<p>Hacker Phobia is a game meant to teach computer security.  It was developed at the 2014 Google 24 Hours of Good hackathon in nyc.  Enjoy!
+				Rules:
+					<ul>
+						<li>Rule 1</li>
+						<li>Rule 2</li>
+					</ul>
+				</p>
+			</div>
+	</body>
+</html>
