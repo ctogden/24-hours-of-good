@@ -53,10 +53,11 @@ def play():
 def temp():
     return render_template('game.html')
 
-@app.route('/connect', methods=['GET', 'POST'])
+@app.route('/connect')
 def connect():
-    print request.form['test']
-    return "Yay"
+    display_name = request.args.get('displayName')
+    # TODO get from user object
+    return jsonify(result=True)
 
 @app.route('/_add_numbers')
 def add_numbers():
