@@ -25,6 +25,9 @@
 			var userHealth;
 			var virusScanner;
 			var numVisibleViruses;
+			var nameHacks = [];
+			var idHacks = [];
+			var virus = []
 			
 			// Update variables for next round
 			function updateForNextRound(playerNames, playerIDs,  viruses){
@@ -116,7 +119,7 @@
 				$.getJSON($SCRIPT_ROOT + '/all_emails_sent', {
 				}, function(data) {
 					// Get if I was put into a game
-					if(data.result) { 
+					if(!data.result) { 
 						$('#loading').hide();
 						$('#waitingForOtherToEmailDiv').hide();
 						
@@ -124,6 +127,7 @@
 						emails[0] = {sender: "Hanne", subject: "Accusation", text: "Jamie is a hacker!", id: 0, type: ACCUSATION};
 						emails[1] = {sender: "Jamie", subject: "Virus Scanner", text: "Heres a free virus scanner!", id: 1, type: VIRUS_SCANNER};
 						emails[2] = {sender: "Chris", subject: "Powerup", text: "Change your password!", id: 2, type: POWER_UP};
+						emails[3] = {sender: "John", subject: "Powerup", text: "Change your password!", id: 3, type: POWER_UP};
 						/*for(var x = 0; x < data.emails.length; x++) {
 							emails[emails[x].id] = {sender: emails[x].senderName, subject: emails[x].subject, text: emails[x].text, id: emails[x].id, type: emails[x].type};
 						}*/
@@ -276,7 +280,7 @@
 				}
 				else {
 					// Move onto next turn
-					updateForNextRound();
+					updateForNextRound(nameHacks, idHacks, virus);
 				}
 			}
 			
@@ -291,6 +295,14 @@
 			
 			// Called once document fully loads
 			$(function(){
+				idHacks.push(0);
+				idHacks.push(1);
+				idHacks.push(2);
+				idHacks.push(3);
+				nameHacks.push('Hanne');
+				nameHacks.push('Jamie');
+				nameHacks.push('Chris');
+				nameHacks.push('John');
 				$('#btn_JoinGame').click(function(){
 					$('#loading').show();
 					$('#waitingOtherPlayerGameStart').show();
@@ -343,7 +355,7 @@
 				$('#btn_DoneViewingAlerts').click(function(){
 					// Done viewing alerts, next
 					$('#alertsDiv').hide();
-					updateForNextRound();
+					updateForNextRound(nameHack, idHack, virus);
 				});
 			});
 		</script>
